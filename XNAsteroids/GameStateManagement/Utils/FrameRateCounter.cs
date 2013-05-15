@@ -1,0 +1,128 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+namespace Utils
+{
+    public class FrameRateCounter : DrawableGameComponent
+    {
+        private SpriteBatch m_kSpriteBatch;
+        private SpriteFont m_kFont;
+
+        private Vector2 m_vPosition;
+        private Vector2 m_vMaxPosition;
+        private Vector2 m_vMinPosition;
+
+        private float m_fCurrentFrameRate;
+
+        private float m_fAverageFrameRate;
+
+        private float m_fFrameRateSum;
+
+        private float m_fFrameRateMax;
+
+        private float m_fFrameRateMin;
+
+        private Queue<float> m_kLastFrames = new Queue<float>();
+
+        const int framesRecorded = 1000; // will keep track of the last x frames.
+
+
+        public FrameRateCounter(Game game, Vector2 vPosition)
+            : base(game)
+        {
+            m_vPosition = vPosition;
+            m_vMaxPosition = new Vector2((float)vPosition.X, (float)vPosition.Y + (float)20);
+            m_vMinPosition = new Vector2((float)vPosition.X, (float)vPosition.Y + (float)40);
+
+        }
+
+        protected override void LoadContent()
+        {
+            IGraphicsDeviceService graphicsService = (IGraphicsDeviceService)this.Game.Services.GetService(typeof(IGraphicsDeviceService));
+
+            m_kSpriteBatch = new SpriteBatch(graphicsService.GraphicsDevice);
+            m_kFont = Game.Content.Load<SpriteFont>("fpsfont");
+
+            base.LoadContent();
+        }
+
+        protected override void UnloadContent()
+        {
+            base.UnloadContent();
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            if (m_kLastFrames.Count < 1000)
+            {
+                m_fCurrentFrameRate = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (float.IsInfinity(m_fCurrentFrameRate))
+                    m_fCurrentFrameRate = 0.0f;
+
+                m_kLastFrames.Enqueue(m_fCurrentFrameRate);
+            }
+            else
+            {
+                m_fCurrentFrameRate = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (float.IsInfinity(m_fCurrentFrameRate))
+                    m_fCurrentFrameRate = 0.0f;
+                
+                m_kLastFrames.Dequeue();
+                m_kLastFrames.Enqueue(m_fCurrentFrameRate);
+            }
+            m_fFrameRateSum = (float)0;
+            m_fFrameRateMax = m_kLastFrames.Peek();
+            m_fFrameRateMin = m_kLastFrames.Peek();
+
+            foreach (float frame in m_kLastFrames)
+            {
+                m_fFrameRateSum += frame;
+                if (frame < m_fFrameRateMin)
+                    m_fFrameRateMin = frame;
+                if (frame > m_fFrameRateMax)
+                    m_fFrameRateMax = frame;
+            }
+            if (m_kLastFrames.Count > 0)
+                m_fAverageFrameRate = m_fFrameRateSum / m_kLastFrames.Count;
+            else
+                m_fAverageFrameRate = 0;
+            
+            base.Update(gameTime);
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            m_kSpriteBatch.Begin();
+
+            // Color this based on the framerate
+            Color DrawColor = Color.Green;
+            if (m_fCurrentFrameRate < 15.0f)
+                DrawColor = Color.Red;
+            else if (m_fCurrentFrameRate < 30.0f)
+                DrawColor = Color.Yellow;
+
+            m_kSpriteBatch.DrawString(m_kFont, "AFPS: " + m_fAverageFrameRate.ToString("f3"), m_vPosition, DrawColor);
+            m_kSpriteBatch.DrawString(m_kFont, "MAXFPS: " + m_fFrameRateMax.ToString("f3"), m_vMaxPosition, DrawColor);
+            m_kSpriteBatch.DrawString(m_kFont, "MINFPS: " + m_fFrameRateMin.ToString("f3"), m_vMinPosition, DrawColor);
+            m_kSpriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+
+
+		public void ResetFPSCount()
+		{
+
+            m_kLastFrames.Clear();
+            m_fAverageFrameRate = 0.0f;
+            m_fFrameRateSum = 0.0f;
+            m_fFrameRateMax = 0.0f;
+            m_fFrameRateMin = 0.0f;
+		}
+
+    }
+}

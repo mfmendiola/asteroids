@@ -1,0 +1,13 @@
+Content\background.xnb
+Content\blank.xnb
+Content\gradient.xnb
+Content\supermariostar.xnb
+Content\gamefont.xnb
+Content\menufont.xnb
+Content\fpsfont.xnb
+Content\Ship.xnb
+Content\Asteroid.xnb
+Content\Missile.xnb
+Content\Sounds.xgs
+Content\XNAsteroids Waves.xwb
+Content\XNAsteroids Cues.xsb

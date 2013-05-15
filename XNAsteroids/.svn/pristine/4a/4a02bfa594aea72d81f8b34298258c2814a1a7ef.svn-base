@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+
+namespace GameStateManagement
+{
+    /// <summary>
+    /// This is a game component that implements IUpdateable.
+    /// </summary>
+    /// 
+    public class Actor : Microsoft.Xna.Framework.DrawableGameComponent
+    {
+
+        private string meshName;    // name of mesh to be loaded
+        private Model meshData = new Model();    // mesh data
+        public Matrix worldTransformMatrix;    // world transform matrix
+        private Utils.Timer timer;  // gives us flexibility to add/update timers as needed to do Actor-specific functionality
+        private Matrix[] boneTransforms;  // stores bone transforms for the mesh
+
+
+
+        public Actor(Game game)
+            : base(game)
+        {
+            timer = new Utils.Timer();  
+            worldTransformMatrix = Matrix.Identity;
+            
+
+
+        }
+
+        /// <summary>
+        /// Allows the game component to perform any initialization it needs to before starting
+        /// to run.  This is where it can query for any required services and load content.
+        /// </summary>
+        public override void Initialize()
+        {
+            // TODO: Add your initialization code here
+
+            base.Initialize();
+        }
+
+        /// <summary>
+        /// Allows the game component to update itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        public override void Update(GameTime gameTime)
+        {
+            // TODO: Add your update code here
+
+            timer.Update(gameTime);
+            base.Update(gameTime);
+        }
+
+        protected override void LoadContent()
+        {
+            meshData = Game.Content.Load<Model>(meshName);
+            boneTransforms = new Matrix[meshData.Bones.Count];
+            base.LoadContent();
+          
+        }
+
+        protected override void UnloadContent()
+        {
+            base.UnloadContent();
+           
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            meshData.CopyAbsoluteBoneTransformsTo(boneTransforms);
+            foreach (ModelMesh mesh in meshData.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.World = boneTransforms[mesh.ParentBone.Index] * worldTransformMatrix;
+                    effect.View = cameraMatrix;
+                    effect.Projection = projectionMatrix;
+                    effect.EnableDefaultLighting();
+                    effect.PreferPerPixelLighting = true;
+                }
+                mesh.Draw();
+            }
+            base.Draw(gameTime); 
+
+            base.Draw(gameTime);
+     
+        }
+
+        public Vector3 GetWorldFacing()
+        {
+            return worldTransformMatrix.Forward;
+        }
+
+        public Vector3 GetWorldPosition()
+        {
+            return worldTransformMatrix.Translation;
+        }
+
+
+    }
+}

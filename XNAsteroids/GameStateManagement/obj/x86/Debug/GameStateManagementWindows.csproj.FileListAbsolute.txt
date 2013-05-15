@@ -1,0 +1,19 @@
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\background.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\blank.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\gradient.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\supermariostar.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\gamefont.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\menufont.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\fpsfont.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\GameStateManagement.exe
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\GameStateManagement.pdb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\obj\x86\Debug\GameStateManagement.exe
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\obj\x86\Debug\GameStateManagement.pdb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\Ship.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\Asteroid.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\Missile.xnb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\Sounds.xgs
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\XNAsteroids Waves.xwb
+C:\Users\mfmendiola\Desktop\mmendiol\GameStateManagement\bin\x86\Debug\Content\XNAsteroids Cues.xsb

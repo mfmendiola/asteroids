@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+namespace GameStateManagement
+{
+    class Ship : Actor
+    {
+     public Ship(Game game)
+            : base(game)
+        {
+            meshName = "Ship";
+            worldTransformMatrix = Matrix.CreateRotationX(MathHelper.PiOver2);    // rotates 45 degrees or pi/2 radians about the x-axis
+            
+
+
+        }
+    }
+}

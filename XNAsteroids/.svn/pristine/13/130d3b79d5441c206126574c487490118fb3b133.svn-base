@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+namespace GameStateManagement
+{
+    class Ship : Actor
+    {
+
+        
+           
+     public Ship(Game game)
+            : base(game)
+        {
+            meshName = "Ship";
+            rotation = Quaternion.CreateFromAxisAngle(new Vector3(1.0f,0.0f,0.0f), MathHelper.PiOver2);    // rotates 90 degrees or pi/2 radians about the x-axis
+            velocity = Vector3.Zero;
+            worldPosition = Vector3.Zero;
+
+            worldTransformMatrix = Matrix.CreateFromQuaternion(rotation);// *Matrix.CreateTranslation(worldPosition);
+            //velocity = new Vector3(0.0f,0.0f,1.0f);
+           // rotation = Quaternion.Identity;
+            bPhysicsDriven = true;
+            terminalVelocity = 500.0f;
+        }
+
+     public override void Initialize()
+     {
+         base.Initialize();
+         GameplayScreen.soundBank.PlayCue("Ship_Spawn");
+
+
+     }
+
+     public override void Update(GameTime gameTime)
+     {
+         base.Update(gameTime);
+         
+         Matrix tempTranslate = Matrix.CreateTranslation(worldPosition);
+         Matrix tempRotate = Matrix.CreateFromQuaternion(rotation);
+         worldTransformMatrix = tempRotate * tempTranslate;
+         //velocity = Vector3.Zero;
+         force = Vector3.Zero;
+         
+     }
+    }
+}

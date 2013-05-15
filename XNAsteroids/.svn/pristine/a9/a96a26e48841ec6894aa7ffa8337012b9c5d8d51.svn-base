@@ -1,0 +1,79 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+namespace GameStateManagement
+{
+    class Asteroid : Actor
+    {
+        private const float leftBound = -512.0f;
+        private const float rightBound = 512.0f;
+        private const float topBound = -384.0f;
+        private const float bottomBound = 384.0f;
+        private float fDeltaTime;
+        private Vector3 rotationDirection;
+
+
+        public Asteroid(Game game)
+            : base(game)
+        {
+            meshName = "Asteroid";
+            worldTransformMatrix = Matrix.CreateRotationX(MathHelper.PiOver2);    // rotates 45 degrees or pi/2 radians about the x-axis
+          
+           
+
+
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            Random rand = new Random();
+            const float speed = 100.0f;
+
+            velocity.X = rand.Next(-1000, 1000);
+            velocity.Y = rand.Next(-1000, 1000);
+            velocity.Normalize();
+            rotationDirection = new Vector3(-1.0f / velocity.X, 1.0f / velocity.Y, 0.0f);
+            rotationDirection.Normalize();
+            velocity *= speed;
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            // TODO: Add your update code here
+            fDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            worldPosition += velocity * fDeltaTime;
+            if (worldPosition.X > rightBound)
+            {
+                worldPosition.X = leftBound;
+            }
+            if (worldPosition.X < leftBound)
+            {
+                worldPosition.X = rightBound;
+            }
+            if (worldPosition.Y > bottomBound)
+            {
+                worldPosition.Y = topBound;
+            }
+            if (worldPosition.Y < topBound)
+            {
+                worldPosition.Y = bottomBound;
+            }
+            rotation *= Quaternion.CreateFromAxisAngle(rotationDirection, 0.001f);
+            Matrix tempTranslate = Matrix.CreateTranslation(worldPosition);
+            Matrix tempRotate = Matrix.CreateFromQuaternion(rotation);
+            worldTransformMatrix = tempRotate * tempTranslate;
+            timer.Update(gameTime);
+            base.Update(gameTime);
+        }
+    }
+    
+}

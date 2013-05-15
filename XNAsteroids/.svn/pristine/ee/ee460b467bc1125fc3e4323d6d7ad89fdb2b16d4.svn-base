@@ -1,0 +1,302 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+
+namespace GameStateManagement
+{
+    /// <summary>
+    /// This is a game component that implements IUpdateable.
+    /// </summary>
+    /// 
+    public class Actor : Microsoft.Xna.Framework.DrawableGameComponent
+    {
+
+        protected string meshName;    // name of mesh to be loaded
+        protected Model meshData;    // mesh data
+        public Matrix worldTransformMatrix;    // world transform matrix
+        protected Utils.Timer timer;  // gives us flexibility to add/update timers as needed to do Actor-specific functionality
+        protected Matrix[] boneTransforms;  // stores bone transforms for the mesh
+        protected float uniformScale;
+        protected Vector3 worldPosition;
+        protected Quaternion rotation;
+        protected Vector3 velocity;
+        protected BoundingSphere ModelBounds;
+        protected BoundingSphere WorldBounds;
+
+       
+
+        private const float leftBound = -512.0f;
+        private const float rightBound = 512.0f;
+        private const float topBound = -384.0f;
+        private const float bottomBound = 384.0f;
+        private float fDeltaTime;
+        private const float speed = 100.0f;
+        private Random randomNumGenerator;
+        
+        // Lab 5
+        protected float mass = 2.0f;
+        protected float terminalVelocity = 0.0f;
+        protected Vector3 force = new Vector3(0.0f,0.0f,0.0f);//Vector3.Zero;
+        protected Vector3 acceleration = Vector3.Zero;
+        protected bool bPhysicsDriven = true;
+        protected int id;
+
+
+
+        public Actor(Game game)
+            : base(game)
+        {
+            timer = new Utils.Timer();  
+            worldTransformMatrix = Matrix.Identity;
+            uniformScale = 1.0f;
+            worldPosition = Vector3.Zero;
+            rotation = Quaternion.Identity;
+            velocity = Vector3.Zero;
+            
+
+
+        }
+
+        /// <summary>
+        /// Allows the game component to perform any initialization it needs to before starting
+        /// to run.  This is where it can query for any required services and load content.
+        /// </summary>
+        public override void Initialize()
+        {
+            base.Initialize();
+            // TODO: Add your initialization code here
+            timer.AddTimer("lightingTimer", 5.0f, timerDelegateFunction, true);
+            randomNumGenerator = new Random();
+            
+           
+        }
+
+        /// <summary>
+        /// Allows the game component to update itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        public override void Update(GameTime gameTime)
+        {
+            if (!bPhysicsDriven)
+            {
+                if (velocity != Vector3.Zero)
+                {
+                    // TODO: Add your update code here
+                    fDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    velocity.Normalize();
+                    velocity *= speed;
+                    worldPosition += velocity * fDeltaTime;
+                    
+
+                }
+            }
+            else
+            {
+                fDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                Vector3 temp = GetWorldFacing();
+                temp.Normalize();
+               
+                    velocity += acceleration * fDeltaTime / 2.0f;
+                    worldPosition += velocity * fDeltaTime;
+                    acceleration = force / mass;
+                    velocity += acceleration * fDeltaTime / 2.0f;
+                    if (velocity.Length() > terminalVelocity)
+                    {
+                        velocity.Normalize();
+                        velocity *= terminalVelocity;
+                    }
+                
+                
+
+                
+            }
+
+            if (worldPosition.X > rightBound)
+            {
+                worldPosition.X = leftBound;
+            }
+            if (worldPosition.X < leftBound)
+            {
+                worldPosition.X = rightBound;
+            }
+            if (worldPosition.Y > bottomBound)
+            {
+                worldPosition.Y = topBound;
+            }
+            if (worldPosition.Y < topBound)
+            {
+                worldPosition.Y = bottomBound;
+            }
+            timer.Update(gameTime);
+            base.Update(gameTime); 
+        }
+
+        protected override void LoadContent()
+        {
+            meshData = Game.Content.Load<Model>(meshName);
+            boneTransforms = new Matrix[meshData.Bones.Count];
+            foreach (ModelMesh mesh in meshData.Meshes)
+            {
+                ModelBounds = BoundingSphere.CreateMerged(ModelBounds, mesh.BoundingSphere);
+            }
+
+            base.LoadContent();
+          
+        }
+
+        protected override void UnloadContent()
+        {
+            base.UnloadContent();
+           
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            meshData.CopyAbsoluteBoneTransformsTo(boneTransforms);
+            foreach (ModelMesh mesh in meshData.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.World = boneTransforms[mesh.ParentBone.Index] * worldTransformMatrix;
+                    effect.View = GameplayScreen.cameraMatrix;
+                    effect.Projection = GameplayScreen.projectionMatrix;
+                    effect.EnableDefaultLighting();
+                    effect.PreferPerPixelLighting = true;
+                    effect.AmbientLightColor = GameplayScreen.ambientLightColor;
+                    effect.SpecularColor = GameplayScreen.specularColor;
+                    effect.SpecularPower = GameplayScreen.specularPower ;
+                    effect.DirectionalLight0.Direction = GameplayScreen.lightDirection;
+                    effect.DirectionalLight0.DiffuseColor = GameplayScreen.lightDiffuseColor;
+                }
+                mesh.Draw();
+            }
+         
+
+            base.Draw(gameTime);
+     
+        }
+
+        public Vector3 GetWorldFacing()
+        {
+            return worldTransformMatrix.Forward;
+        }
+
+        public Vector3 GetWorldPosition()
+        {
+            return worldPosition;
+        }
+
+        public void SetWorldPosition(Vector3 position)
+        {
+            worldPosition = position;
+        }
+
+        public float GetUniformScale()
+        {
+            return uniformScale;
+        }
+
+        public void SetUniformScale(float scaleFactor)
+        {
+            uniformScale = scaleFactor;
+        }
+
+        public Quaternion GetRotation()
+        {
+            return rotation;
+        }
+
+        public void SetRotation(Quaternion newRotation)
+        {
+            rotation = newRotation;
+        }
+
+        public void SetVelocityXY(float x, float y)
+        {
+            velocity.X = x;
+            velocity.Y = y;
+            if (velocity != Vector3.Zero)
+             velocity.Normalize();
+          
+  
+        }
+
+        public Vector3 GetVelocity()
+        {
+            return velocity;
+
+
+        }
+
+        public Vector3 GetForce()
+        {
+            return force;
+
+
+        }
+
+        public BoundingSphere GetWorldBounds()
+        {
+            return WorldBounds;
+
+        }
+
+        public void SetWorldTransformMatrix(Matrix x)
+        {
+            worldTransformMatrix = x;
+            WorldBounds.Center = worldPosition;
+            WorldBounds.Radius = ModelBounds.Radius * uniformScale;
+
+
+        }
+
+        public void SetForce(Vector3 newForce)
+        {
+            force = newForce;
+            
+
+
+        }
+
+        public void SetAcceleration(Vector3 newAcceleration)
+        {
+            acceleration = newAcceleration;
+        
+
+
+        }
+
+        public Vector3 GetAcceleration()
+        {
+            return acceleration;
+
+
+        }
+       
+        public void timerDelegateFunction()
+        {
+
+            GameplayScreen.lightDirection = new Vector3((float)randomNumGenerator.NextDouble(), (float)randomNumGenerator.NextDouble(), (float)randomNumGenerator.NextDouble());
+            GameplayScreen.lightDiffuseColor = new Vector3((float)randomNumGenerator.NextDouble(),(float)randomNumGenerator.NextDouble(),(float)randomNumGenerator.NextDouble());
+
+
+        }
+
+        public int GetId()
+        {
+            return id;
+        }
+
+
+    }
+}
